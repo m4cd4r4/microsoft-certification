@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCCM on Hyper-V Setup Checklist</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-dark: #0a0a0a;
+            --primary-light: #1a1a1a;
+            --accent-purple: #6366f1;
+            --accent-cyan: #06b6d4;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            --success-green: #10b981;
+            --warning-amber: #f59e0b;
+            --error-red: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+            --spacing-xs: 8px;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+            --spacing-xl: 48px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--gray-100);
+            background: var(--primary-dark);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            min-height: 100vh;
+            padding: var(--spacing-md);
+            font-feature-settings: 'liga' 1, 'kern' 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--glass-shadow);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: var(--accent-gradient);
+            color: white;
+            padding: var(--spacing-xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-section {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .progress-bar {
+            background: var(--gray-800);
+            border-radius: 50px;
+            overflow: hidden;
+            height: 12px;
+            margin-bottom: var(--spacing-sm);
+            position: relative;
+        }
+        
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-fill {
+            background: var(--accent-gradient);
+            height: 100%;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--gray-300);
+            font-weight: 500;
+        }
+        
+        .content {
+            padding: var(--spacing-xl);
+        }
+        
+        .phase {
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--gray-700);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .phase:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+        
+        .phase.completed {
+            border-color: var(--success-green);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        }
+        
+        .phase-header {
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-700) 100%);
+            color: white;
+            padding: var(--spacing-md);
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: -0.01em;
+        }
+        
+        .phase-header:hover {
+            background: linear-gradient(135deg, var(--gray-700) 0%, var(--gray-600) 100%);
+        }
+        
+        .phase-header.completed {
+            background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+        }
+        
+        .phase-counter {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .phase-content {
+            padding: var(--spacing-lg);
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .section {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-100);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-xs);
+            border-bottom: 2px solid var(--accent-purple);
+            letter-spacing: -0.01em;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 30%;
+            height: 2px;
+            background: var(--accent-cyan);
+            border-radius: 1px;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .checklist-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: transparent;
+            border-radius: 0 3px 3px 0;
+            transition: background 0.2s ease;
+        }
+        
+        .checklist-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .checklist-item:hover::before {
+            background: var(--accent-purple);
+        }
+        
+        .checklist-item.completed {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .checklist-item.completed::before {
+            background: var(--success-green);
+        }
+        
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: var(--spacing-sm);
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--accent-purple);
+            border-radius: 4px;
+        }
+        
+        .checkbox-label {
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--gray-200);
+            font-weight: 400;
+        }
+        
+        .completed .checkbox-label {
+            color: var(--success-green);
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+        
+        .sub-items {
+            margin-left: var(--spacing-lg);
+            margin-top: var(--spacing-sm);
+            border-left: 2px solid var(--gray-700);
+            padding-left: var(--spacing-md);
+        }
+        
+        .sub-items .checklist-item {
+            font-size: 0.925rem;
+            margin-bottom: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+        }
+        
+        .notes-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed var(--gray-600);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+            backdrop-filter: blur(10px);
+        }
+        
+        .notes-title {
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--gray-200);
+            font-size: 1.125rem;
+        }
+        
+        .notes-textarea {
+            width: 100%;
+            min-height: 120px;
+            border: 1px solid var(--gray-600);
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-md);
+            font-family: inherit;
+            resize: vertical;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--gray-100);
+            font-size: 0.925rem;
+            line-height: 1.6;
+            transition: border-color 0.2s ease;
+        }
+        
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .notes-textarea::placeholder {
+            color: var(--gray-400);
+        }
+        
+        .signoff-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--gray-700);
+        }
+        
+        .signoff-section h3 {
+            color: var(--gray-100);
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            font-size: 1.25rem;
+        }
+        
+        .signoff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+        
+        .signoff-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+        
+        .signoff-label {
+            font-weight: 500;
+            color: var(--gray-300);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .signoff-input, .signoff-input select {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--gray-600);
+            border-radius: var(--border-radius-sm);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--gray-100);
+            font-family: inherit;
+            font-size: 0.925rem;
+            transition: all 0.2s ease;
+        }
+        
+        .signoff-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .export-section {
+            text-align: center;
+            margin-top: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+        }
+        
+        .export-section h3 {
+            color: var(--gray-100);
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            font-size: 1.25rem;
+        }
+        
+        .export-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: 50px;
+            font-size: 0.925rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: var(--spacing-xs);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .export-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .export-btn:hover::before {
+            left: 100%;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(135deg, var(--error-red) 0%, #dc2626 100%);
+        }
+        
+        .reset-btn:hover {
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+        }
+        
+        .collapse-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: var(--spacing-xs);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .collapse-btn.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .phase-content.collapsed {
+            display: none;
+        }
+        
+        .brand-signature {
+            text-align: center;
+            padding: var(--spacing-lg);
+            background: var(--primary-dark);
+            margin-top: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brand-signature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--accent-gradient);
+        }
+        
+        .brand-link {
+            color: var(--gray-400);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        
+        .brand-link::before {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent-gradient);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .brand-link:hover {
+            color: var(--gray-100);
+            transform: translateY(-2px);
+        }
+        
+        .brand-link:hover::before {
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: var(--spacing-sm);
+            }
+            
+            .header {
+                padding: var(--spacing-lg);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: var(--spacing-md);
+            }
+            
+            .phase-header {
+                padding: var(--spacing-md);
+                font-size: 1rem;
+            }
+            
+            .signoff-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-btn {
+                display: block;
+                width: 100%;
+                margin: var(--spacing-xs) 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SCCM on Hyper-V Setup Checklist</h1>
+            <p>Interactive checklist for setting up Microsoft System Center Configuration Manager</p>
+        </div>
+        
+        <div class="progress-section">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <div class="progress-stats">
+                <span id="progressStats">0 of 0 items completed</span>
+                <span id="timeEstimate">Estimated time remaining: 6-8 hours</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Pre-Setup Preparation -->
+            <div class="phase" data-phase="0">
+                <div class="phase-header" onclick="togglePhase(0)">
+                    <span>Pre-Setup Preparation</span>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="phase-counter" id="counter-0">0/9</span>
+                        <button class="collapse-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="section">
+                        <div class="section-title">Hardware & Software Requirements</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-0">
+                            <label class="checkbox-label" for="check-0-0">Workstation has minimum 16GB RAM (32GB+ recommended)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-1">
+                            <label class="checkbox-label" for="check-0-1">500GB+ available disk space confirmed</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-2">
+                            <label class="checkbox-label" for="check-0-2">Intel VT-x or AMD-V virtualization support verified</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-3">
+                            <label class="checkbox-label" for="check-0-3">Windows 10/11 Pro or Enterprise installed</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-4">
+                            <label class="checkbox-label" for="check-0-4">Downloaded Windows Server 2019/2022 ISO</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-5">
+                            <label class="checkbox-label" for="check-0-5">Downloaded SQL Server 2022 Developer Edition</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-6">
+                            <label class="checkbox-label" for="check-0-6">Downloaded SCCM Current Branch installation media</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-7">
+                            <label class="checkbox-label" for="check-0-7">Downloaded Windows ADK for Windows 11 version 22H2</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-0-8">
+                            <label class="checkbox-label" for="check-0-8">Downloaded Windows PE add-on for ADK</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phase 1: Hyper-V Setup -->
+            <div class="phase" data-phase="1">
+                <div class="phase-header" onclick="togglePhase(1)">
+                    <span>Phase 1: Hyper-V Setup and Configuration</span>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="phase-counter" id="counter-1">0/13</span>
+                        <button class="collapse-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="section">
+                        <div class="section-title">Hyper-V Installation</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-0">
+                            <label class="checkbox-label" for="check-1-0">Opened Programs and Features → Turn Windows features on or off</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-1">
+                            <label class="checkbox-label" for="check-1-1">Checked Hyper-V (both Management Tools and Platform)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-2">
+                            <label class="checkbox-label" for="check-1-2">Restarted workstation</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-3">
+                            <label class="checkbox-label" for="check-1-3">Verified Hyper-V Manager opens successfully</label>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">Virtual Network Configuration</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-4">
+                            <label class="checkbox-label" for="check-1-4">Opened Hyper-V Manager</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-5">
+                            <label class="checkbox-label" for="check-1-5">Clicked Virtual Switch Manager</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-6">
+                            <label class="checkbox-label" for="check-1-6">Created Internal virtual switch named "SCCM-Lab"</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-7">
+                            <label class="checkbox-label" for="check-1-7">Enabled Internet Connection Sharing on host's primary network adapter</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-8">
+                            <label class="checkbox-label" for="check-1-8">Shared connection with SCCM-Lab virtual switch</label>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">Domain Controller VM Creation</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-9">
+                            <label class="checkbox-label" for="check-1-9">Created new Virtual Machine named "DC01-SCCM"</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-10">
+                            <label class="checkbox-label" for="check-1-10">Set Generation 2, allocated 4GB memory, created 80GB virtual hard disk</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-11">
+                            <label class="checkbox-label" for="check-1-11">Connected to SCCM-Lab virtual switch</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-1-12">
+                            <label class="checkbox-label" for="check-1-12">Mounted Windows Server ISO and disabled Secure Boot if needed</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phase 2: Domain Controller Setup -->
+            <div class="phase" data-phase="2">
+                <div class="phase-header" onclick="togglePhase(2)">
+                    <span>Phase 2: Domain Controller Setup</span>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="phase-counter" id="counter-2">0/12</span>
+                        <button class="collapse-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="section">
+                        <div class="section-title">Windows Server Installation</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-0">
+                            <label class="checkbox-label" for="check-2-0">Booted DC01-SCCM VM and installed Windows Server 2019/2022</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-2">
+                            <label class="checkbox-label" for="check-2-2">Configured network adapter with static IP (192.168.137.10)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">Active Directory Domain Services</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-3">
+                            <label class="checkbox-label" for="check-2-3">Installed AD-Domain-Services role</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-4">
+                            <label class="checkbox-label" for="check-2-4">Promoted to domain controller with domain "contoso.local"</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-5">
+                            <label class="checkbox-label" for="check-2-5">Restarted server after promotion</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-6">
+                            <label class="checkbox-label" for="check-2-6">Verified Active Directory Users and Computers opens</label>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">DNS and DHCP Configuration</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-7">
+                            <label class="checkbox-label" for="check-2-7">Installed DHCP role</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-8">
+                            <label class="checkbox-label" for="check-2-8">Configured DHCP scope (192.168.137.100-200)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-9">
+                            <label class="checkbox-label" for="check-2-9">Authorized DHCP server in Active Directory</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-2-10">
+                            <label class="checkbox-label" for="check-2-10">Verified DHCP scope is active</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phase 3: SCCM Server VM Setup -->
+            <div class="phase" data-phase="3">
+                <div class="phase-header" onclick="togglePhase(3)">
+                    <span>Phase 3: SCCM Server VM Setup</span>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="phase-counter" id="counter-3">0/8</span>
+                        <button class="collapse-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="section">
+                        <div class="section-title">SCCM Server VM Creation</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-3-0">
+                            <label class="checkbox-label" for="check-3-0">Created new Virtual Machine named "SCCM01"</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-3-1">
+                            <label class="checkbox-label" for="check-3-1">Set Generation 2, allocated 8GB memory, created 200GB virtual hard disk</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-3-2">
+                            <label class="checkbox-label" for="check-3-2">Connected to SCCM-Lab virtual switch</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-3-3">
+                            <label class="checkbox-label" for="check-3-3">Mounted Windows Server ISO</label>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">Windows Server Installation on SCCM VM</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-3-4">
+                            <label class="checkbox-label" for="check-3-4">Installed Windows Server 2019/2022</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-3-5">
+                            <label class="checkbox-label" for="check-3-5">Joined domain "contoso.local"</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-3-6">
+                            <label class="checkbox-label" for="check-3-6">Configured static IP (192.168.137.20, DNS: 192.168.137.10)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-3-7">
+                            <label class="checkbox-label" for="check-3-7">Verified domain and internet connectivity</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phase 4: SQL Server Installation -->
+            <div class="phase" data-phase="4">
+                <div class="phase-header" onclick="togglePhase(4)">
+                    <span>Phase 4: SQL Server Installation</span>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="phase-counter" id="counter-4">0/10</span>
+                        <button class="collapse-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="section">
+                        <div class="section-title">SQL Server Prerequisites</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-0">
+                            <label class="checkbox-label" for="check-4-0">Installed .NET Framework 3.5</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-1">
+                            <label class="checkbox-label" for="check-4-1">Installed IIS with required features</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-2">
+                            <label class="checkbox-label" for="check-4-2">Verified IIS is running and accessible</label>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">SQL Server 2022 Developer Installation</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-3">
+                            <label class="checkbox-label" for="check-4-3">Mounted SQL Server 2022 Developer ISO</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-4">
+                            <label class="checkbox-label" for="check-4-4">Selected Developer Edition (free)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-5">
+                            <label class="checkbox-label" for="check-4-5">Configured mixed mode authentication</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-6">
+                            <label class="checkbox-label" for="check-4-6">Set SA password and enabled SQL Server Agent</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-7">
+                            <label class="checkbox-label" for="check-4-7">Included SQL Server Management Studio</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-8">
+                            <label class="checkbox-label" for="check-4-8">Verified SQL Server services are running</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-4-9">
+                            <label class="checkbox-label" for="check-4-9">Configured SQL Server for SCCM (CLR enabled, max memory)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phase 5: SCCM Installation -->
+            <div class="phase" data-phase="5">
+                <div class="phase-header" onclick="togglePhase(5)">
+                    <span>Phase 5: SCCM Installation</span>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="phase-counter" id="counter-5">0/8</span>
+                        <button class="collapse-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="section">
+                        <div class="section-title">SCCM Prerequisites</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-5-0">
+                            <label class="checkbox-label" for="check-5-0">Installed Windows ADK for Windows 11 v22H2</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-5-1">
+                            <label class="checkbox-label" for="check-5-1">Installed Windows PE add-on for ADK</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-5-2">
+                            <label class="checkbox-label" for="check-5-2">Extended Active Directory schema</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-5-3">
+                            <label class="checkbox-label" for="check-5-3">Created SCCM service accounts in AD</label>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">SCCM Setup</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-5-4">
+                            <label class="checkbox-label" for="check-5-4">Mounted SCCM Current Branch ISO</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-5-5">
+                            <label class="checkbox-label" for="check-5-5">Completed SCCM installation wizard</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-5-6">
+                            <label class="checkbox-label" for="check-5-6">Configured site system roles</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-5-7">
+                            <label class="checkbox-label" for="check-5-7">Verified SCCM console opens successfully</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Final Validation Phase -->
+            <div class="phase" data-phase="9">
+                <div class="phase-header" onclick="togglePhase(9)">
+                    <span>Final Validation and Testing</span>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="phase-counter" id="counter-9">0/10</span>
+                        <button class="collapse-btn">▼</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    <div class="section">
+                        <div class="section-title">SCCM Functionality Verification</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-0">
+                            <label class="checkbox-label" for="check-9-0">Checked site status in SCCM console (all green)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-1">
+                            <label class="checkbox-label" for="check-9-1">Verified client communication in Device Collections</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-2">
+                            <label class="checkbox-label" for="check-9-2">Tested software deployment with simple package</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-3">
+                            <label class="checkbox-label" for="check-9-3">Validated reporting functionality</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-4">
+                            <label class="checkbox-label" for="check-9-4">Checked critical log files for errors</label>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">Security and Performance Checks</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-5">
+                            <label class="checkbox-label" for="check-9-5">Verified firewall rules allow SCCM traffic</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-6">
+                            <label class="checkbox-label" for="check-9-6">Confirmed DNS resolution between all VMs</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-7">
+                            <label class="checkbox-label" for="check-9-7">Verified SQL Server services are running</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-8">
+                            <label class="checkbox-label" for="check-9-8">Created initial VM snapshots of all systems</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" class="checkbox" id="check-9-9">
+                            <label class="checkbox-label" for="check-9-9">SCCM console accessible from workstation</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notes Section -->
+            <div class="notes-section">
+                <div class="notes-title">Notes and Issues Encountered</div>
+                <textarea class="notes-textarea" id="notesArea" placeholder="Document any issues encountered during setup and their resolutions..."></textarea>
+            </div>
+            
+            <!-- Sign-off Section -->
+            <div class="signoff-section">
+                <h3>Final Sign-off</h3>
+                <div class="signoff-grid">
+                    <div class="signoff-item">
+                        <span class="signoff-label">Completion Date:</span>
+                        <input type="date" class="signoff-input" id="completionDate">
+                    </div>
+                    <div class="signoff-item">
+                        <span class="signoff-label">Total Setup Time:</span>
+                        <input type="text" class="signoff-input" id="setupTime" placeholder="e.g., 7 hours">
+                    </div>
+                    <div class="signoff-item">
+                        <span class="signoff-label">Completed By:</span>
+                        <input type="text" class="signoff-input" id="completedBy" placeholder="Your name">
+                    </div>
+                    <div class="signoff-item">
+                        <span class="signoff-label">Environment Status:</span>
+                        <select class="signoff-input" id="environmentStatus">
+                            <option value="">Select status...</option>
+                            <option value="fully-operational">Fully Operational</option>
+                            <option value="partially-working">Partially Working</option>
+                            <option value="needs-troubleshooting">Needs Troubleshooting</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Export Section -->
+            <div class="export-section">
+                <h3>Export & Reset Options</h3>
+                <button class="export-btn" onclick="exportProgress()">📄 Export Progress Report</button>
+                <button class="export-btn" onclick="printChecklist()">🖨️ Print Checklist</button>
+                <button class="export-btn reset-btn" onclick="resetAll()">🔄 Reset All Progress</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize checklist data structure
+        const phases = {
+            0: { name: "Pre-Setup Preparation", total: 9 },
+            1: { name: "Phase 1: Hyper-V Setup", total: 13 },
+            2: { name: "Phase 2: Domain Controller", total: 12 },
+            3: { name: "Phase 3: SCCM Server VM", total: 8 },
+            4: { name: "Phase 4: SQL Server Installation", total: 10 },
+            5: { name: "Phase 5: SCCM Installation", total: 8 },
+            9: { name: "Final Validation", total: 10 }
+        };
+
+        // Load saved progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('sccm-checklist-progress');
+            if (saved) {
+                const data = JSON.parse(saved);
+                
+                // Restore checkboxes
+                Object.keys(data.checkboxes || {}).forEach(id => {
+                    const checkbox = document.getElementById(id);
+                    if (checkbox && data.checkboxes[id]) {
+                        checkbox.checked = true;
+                        checkbox.closest('.checklist-item').classList.add('completed');
+                    }
+                });
+                
+                // Restore form fields
+                if (data.notes) document.getElementById('notesArea').value = data.notes;
+                if (data.completionDate) document.getElementById('completionDate').value = data.completionDate;
+                if (data.setupTime) document.getElementById('setupTime').value = data.setupTime;
+                if (data.completedBy) document.getElementById('completedBy').value = data.completedBy;
+                if (data.environmentStatus) document.getElementById('environmentStatus').value = data.environmentStatus;
+                
+                updateAllCounters();
+                updateProgressBar();
+            }
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            const data = {
+                checkboxes: {},
+                notes: document.getElementById('notesArea').value,
+                completionDate: document.getElementById('completionDate').value,
+                setupTime: document.getElementById('setupTime').value,
+                completedBy: document.getElementById('completedBy').value,
+                environmentStatus: document.getElementById('environmentStatus').value,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            // Save checkbox states
+            document.querySelectorAll('.checkbox').forEach(checkbox => {
+                data.checkboxes[checkbox.id] = checkbox.checked;
+            });
+            
+            localStorage.setItem('sccm-checklist-progress', JSON.stringify(data));
+        }
+
+        // Update phase counter
+        function updatePhaseCounter(phaseNum) {
+            const phaseElement = document.querySelector(`[data-phase="${phaseNum}"]`);
+            if (!phaseElement) return;
+            
+            const checkboxes = phaseElement.querySelectorAll('.checkbox');
+            const completed = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const total = checkboxes.length;
+            
+            const counter = document.getElementById(`counter-${phaseNum}`);
+            if (counter) {
+                counter.textContent = `${completed}/${total}`;
+            }
+            
+            // Update phase appearance
+            const phaseHeader = phaseElement.querySelector('.phase-header');
+            if (completed === total && total > 0) {
+                phaseElement.classList.add('completed');
+                phaseHeader.classList.add('completed');
+            } else {
+                phaseElement.classList.remove('completed');
+                phaseHeader.classList.remove('completed');
+            }
+        }
+
+        // Update all phase counters
+        function updateAllCounters() {
+            Object.keys(phases).forEach(phaseNum => {
+                updatePhaseCounter(parseInt(phaseNum));
+            });
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const allCheckboxes = document.querySelectorAll('.checkbox');
+            const completedCheckboxes = Array.from(allCheckboxes).filter(cb => cb.checked);
+            const percentage = Math.round((completedCheckboxes.length / allCheckboxes.length) * 100);
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressStats = document.getElementById('progressStats');
+            
+            progressFill.style.width = `${percentage}%`;
+            progressFill.textContent = `${percentage}%`;
+            progressStats.textContent = `${completedCheckboxes.length} of ${allCheckboxes.length} items completed`;
+            
+            // Update time estimate
+            const timeEstimate = document.getElementById('timeEstimate');
+            const remainingHours = Math.max(0, 8 - Math.round(percentage * 8 / 100));
+            timeEstimate.textContent = `Estimated time remaining: ${remainingHours} hours`;
+        }
+
+        // Toggle phase collapse/expand
+        function togglePhase(phaseNum) {
+            const phase = document.querySelector(`[data-phase="${phaseNum}"]`);
+            const content = phase.querySelector('.phase-content');
+            const button = phase.querySelector('.collapse-btn');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                button.classList.remove('collapsed');
+                button.textContent = '▼';
+            } else {
+                content.classList.add('collapsed');
+                button.classList.add('collapsed');
+                button.textContent = '▶';
+            }
+        }
+
+        // Export progress report
+        function exportProgress() {
+            const data = {
+                exportDate: new Date().toISOString(),
+                progress: {},
+                summary: {
+                    totalItems: document.querySelectorAll('.checkbox').length,
+                    completedItems: document.querySelectorAll('.checkbox:checked').length,
+                    completionPercentage: Math.round((document.querySelectorAll('.checkbox:checked').length / document.querySelectorAll('.checkbox').length) * 100)
+                },
+                notes: document.getElementById('notesArea').value,
+                signoff: {
+                    completionDate: document.getElementById('completionDate').value,
+                    setupTime: document.getElementById('setupTime').value,
+                    completedBy: document.getElementById('completedBy').value,
+                    environmentStatus: document.getElementById('environmentStatus').value
+                }
+            };
+            
+            // Collect phase progress
+            Object.keys(phases).forEach(phaseNum => {
+                const phase = document.querySelector(`[data-phase="${phaseNum}"]`);
+                const checkboxes = phase.querySelectorAll('.checkbox');
+                const completed = Array.from(checkboxes).filter(cb => cb.checked).length;
+                
+                data.progress[`phase_${phaseNum}`] = {
+                    name: phases[phaseNum].name,
+                    completed: completed,
+                    total: checkboxes.length,
+                    percentage: Math.round((completed / checkboxes.length) * 100)
+                };
+            });
+            
+            // Create and download JSON file
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sccm-setup-progress-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Print checklist
+        function printChecklist() {
+            window.print();
+        }
+
+        // Reset all progress
+        function resetAll() {
+            if (confirm('Are you sure you want to reset all progress? This action cannot be undone.')) {
+                // Clear all checkboxes
+                document.querySelectorAll('.checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.closest('.checklist-item').classList.remove('completed');
+                });
+                
+                // Clear form fields
+                document.getElementById('notesArea').value = '';
+                document.getElementById('completionDate').value = '';
+                document.getElementById('setupTime').value = '';
+                document.getElementById('completedBy').value = '';
+                document.getElementById('environmentStatus').value = '';
+                
+                // Clear localStorage
+                localStorage.removeItem('sccm-checklist-progress');
+                
+                // Update UI
+                updateAllCounters();
+                updateProgressBar();
+                
+                alert('All progress has been reset.');
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved progress
+            loadProgress();
+            
+            // Add change listeners to all checkboxes
+            document.querySelectorAll('.checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // Update visual state
+                    if (this.checked) {
+                        this.closest('.checklist-item').classList.add('completed');
+                    } else {
+                        this.closest('.checklist-item').classList.remove('completed');
+                    }
+                    
+                    // Update counters and progress
+                    const phaseElement = this.closest('[data-phase]');
+                    if (phaseElement) {
+                        const phaseNum = parseInt(phaseElement.getAttribute('data-phase'));
+                        updatePhaseCounter(phaseNum);
+                    }
+                    updateProgressBar();
+                    
+                    // Save progress
+                    saveProgress();
+                });
+            });
+            
+            // Add change listeners to form fields
+            ['notesArea', 'completionDate', 'setupTime', 'completedBy', 'environmentStatus'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', saveProgress);
+                    element.addEventListener('input', saveProgress);
+                }
+            });
+            
+            // Add click listeners to checkbox labels
+            document.querySelectorAll('.checkbox-label').forEach(label => {
+                label.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const checkbox = document.getElementById(this.getAttribute('for'));
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+        });
+
+        // Auto-save every 30 seconds
+        setInterval(saveProgress, 30000);
+        
+        // Save before page unload
+        window.addEventListener('beforeunload', saveProgress);
+    </script>
+    
+    <!-- Brand Signature Footer -->
+    <div class="brand-signature">
+        <a href="https://github.com/m4cd4r4" target="_blank" class="brand-link">
+            m4cd4r4 2025
+        </a>
+    </div>
+</body>
+</html>
