@@ -76,16 +76,10 @@ open sccm-setup-checklist.html
 ## 📁 **Repository Structure**
 
 ```
-sccm-hyperv-setup/
-├── 📄 README.md                          # You are here
-├── 🌐 sccm-setup-checklist.html         # Interactive checklist
-├── 📚 docs/
-│   ├── 📖 detailed-guide.md             # Complete step-by-step guide
-│   ├── 🔧 troubleshooting.md            # Common issues & solutions
-│   └── ⚙️  advanced-configuration.md     # Post-installation features
-└── 🎨 assets/
-    ├── 🏗️  architecture-diagram.png      # Lab architecture overview
-    └── 📸 screenshots/                  # Visual step-by-step guide
+sccm-setup/
+├── 📄 README.md
+├── 🎬 sccm-on_hyper-v.gif          # Your demo GIF
+└── 🌐 sccm_setup_checklist.html
 ```
 
 ## 🏗️ **Lab Architecture**
