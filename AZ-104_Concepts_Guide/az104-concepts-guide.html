@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZ-104 Must-Know Concepts Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .concept-section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #0078d4;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .concept-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,120,212,0.1);
+        }
+        
+        h2 {
+            color: #0078d4;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2::before {
+            content: "▶";
+            margin-right: 10px;
+            font-size: 0.7em;
+        }
+        
+        h3 {
+            color: #005a9e;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #e1e5ea;
+            padding-bottom: 5px;
+        }
+        
+        .key-points {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .key-points li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .key-points li:last-child {
+            border-bottom: none;
+        }
+        
+        .key-points li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        code {
+            background: #2d2d30;
+            color: #f8f8f2;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background: #2d2d30;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            line-height: 1.4;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 0.95em;
+        }
+        
+        .scenario {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe4cc 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ff6b35;
+        }
+        
+        .scenario h4 {
+            color: #ff6b35;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #e6f7ff 0%, #cce7ff 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #1890ff;
+        }
+        
+        .example h4 {
+            color: #1890ff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: #0078d4;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e1e5ea;
+            background: white;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover td {
+            background: #f8f9fa;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .warning::before {
+            content: "⚠ ";
+            font-weight: bold;
+            color: #ff6b35;
+        }
+        
+        .tip {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .tip::before {
+            content: "💡 ";
+            font-weight: bold;
+        }
+        
+        .command-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .command-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .command-box h5 {
+            color: #005a9e;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .command-comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .concept-section {
+                padding: 20px;
+            }
+        }
+        
+        .quick-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            max-width: 200px;
+            z-index: 1000;
+        }
+        
+        .quick-nav h4 {
+            color: #0078d4;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+        
+        .quick-nav a {
+            display: block;
+            color: #666;
+            text-decoration: none;
+            padding: 5px 0;
+            font-size: 0.85em;
+            transition: color 0.3s ease;
+        }
+        
+        .quick-nav a:hover {
+            color: #0078d4;
+        }
+        
+        @media (max-width: 1400px) {
+            .quick-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 AZ-104 Must-Know Concepts</h1>
+            <div class="subtitle">Complete Guide with Examples, Code, and Scenarios</div>
+        </header>
+        
+        <div class="quick-nav">
+            <h4>Quick Jump</h4>
+            <a href="#azure-ad">Azure AD vs AD</a>
+            <a href="#storage">Storage Replication</a>
+            <a href="#nsg">NSG Processing</a>
+            <a href="#resources">Resource Movement</a>
+            <a href="#backup">Backup & Recovery</a>
+            <a href="#availability">VM Availability</a>
+            <a href="#networking">Networking</a>
+            <a href="#identity">Identity & RBAC</a>
+            <a href="#cost">Cost Optimization</a>
+            <a href="#loadbalancing">Load Balancing</a>
+            <a href="#monitoring">Monitoring</a>
+        </div>
+        
+        <div class="content">
+            <!-- Azure AD vs On-Premises AD -->
+            <div class="concept-section" id="azure-ad">
+                <h2>Azure AD vs On-Premises Active Directory</h2>
+                
+                <div class="key-points">
+                    <ul>
+                        <li><strong>Azure AD (Entra ID)</strong>: Cloud-based identity service using REST APIs (HTTP/HTTPS)</li>
+                        <li><strong>On-Premises AD</strong>: Traditional Active Directory with forests, domains, and OUs</li>
+                        <li><strong>Authentication</strong>: Azure AD uses OAuth 2.0, SAML, OpenID Connect | On-Prem uses Kerberos, NTLM</li>
+                        <li><strong>Structure</strong>: Azure AD is flat (no OUs) | On-Prem is hierarchical</li>
+                    </ul>
+                </div>
+                
+                <div class="scenario">
+                    <h4>📋 Exam Scenario</h4>
+                    <p><strong>Question:</strong> Contoso has on-premises AD and wants to enable SSO for Office 365. What should they implement?</p>
+                    <p><strong>Answer:</strong> Azure AD Connect with Password Hash Sync or Pass-through Authentication</p>
+                </div>
+                
+                <div class="command-comparison">
+                    <div class="command-box">
+                        <h5>Azure AD Commands</h5>
+                        <pre><code># Create user in Azure AD
+az ad user create \
+  --display-name "John Doe" \
+  --user-principal-name john@contoso.com \
+  --password TempPass123!
+
+# Assign role
+az role assignment create \
+  --assignee john@contoso.com \
+  --role "Global Administrator"</code></pre>
+                    </div>
+                    <div class="command-box">
+                        <h5>On-Premises AD (PowerShell)</h5>
+                        <pre><code># Create user in on-prem AD
+New-ADUser -Name "John Doe" \
+  -SamAccountName jdoe \
+  -UserPrincipalName jdoe@contoso.local \
+  -Path "OU=Users,DC=contoso,DC=local"
+
+# Add to group
+Add-ADGroupMember -Identity "Domain Admins" \
+  -Members jdoe</code></pre>
+                    </div>
+                </div>
+                
+                <div class="tip">
+                    <strong>Exam Tip:</strong> Remember that Azure AD has no computer objects, Group Policy, or LDAP support. It's purely for identity and access management.
+                </div>
+            </div>
+            
+            <!-- Storage Replication -->
+            <div class="concept-section" id="storage">
+                <h2>Storage Replication Types</h2>
+                
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Copies</th>
+                        <th>Protection</th>
+                        <th>Use Case</th>
+                        <th>Cost</th>
+                    </tr>
+                    <tr>
+                        <td><strong>LRS</strong></td>
+                        <td>3 copies in 1 datacenter</td>
+                        <td>Hardware failure</td>
+                        <td>Dev/Test, Backups</td>
+                        <td>$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ZRS</strong></td>
+                        <td>3 copies across zones</td>
+                        <td>Datacenter failure</td>
+                        <td>High availability</td>
+                        <td>$$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GRS</strong></td>
+                        <td>6 copies (3+3 regions)</td>
+                        <td>Regional disaster</td>
+                        <td>Critical data</td>
+                        <td>$$$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RA-GRS</strong></td>
+                        <td>6 copies + read access</td>
+                        <td>Regional disaster + Read HA</td>
+                        <td>Global apps</td>
+                        <td>$$$$</td>
+                    </tr>
+                </table>
+                
+                <div class="example">
+                    <h4>💻 Real-World Example</h4>
+                    <pre><code># Create storage account with GRS replication
+az storage account create \
+  --name contosostorage001 \
+  --resource-group ProductionRG \
+  --location eastus \
+  --sku Standard_GRS \
+  --kind StorageV2 \
+  --access-tier Hot
+
+# Later, convert to RA-GRS for read access
+az storage account update \
+  --name contosostorage001 \
+  --resource-group ProductionRG \
+  --sku Standard_RAGRS</code></pre>
+                </div>
+                
+                <div class="scenario">
+                    <h4>📋 Exam Scenario</h4>
+                    <p><strong>Question:</strong> Your company needs storage for archived compliance documents. The data must survive a regional disaster, but will be accessed less than once per year. Which configuration?</p>
+                    <p><strong>Answer:</strong> GRS replication with Archive access tier</p>
+                    <pre><code># Create storage with GRS and set archive tier
+az storage account create \
+  --name compliancearchive \
+  --sku Standard_GRS \
+  --access-tier Cool
+
+# Set blob to archive tier
+az storage blob set-tier \
+  --account-name compliancearchive \
+  --container-name documents \
+  --name "compliance2020.pdf" \
+  --tier Archive</code></pre>
+                </div>
+                
+                <div class="warning">
+                    <strong>Important:</strong> Archive tier doesn't support ZRS/GZRS. Rehydration from Archive takes hours (1-15 hours for standard priority).
+                </div>
+            </div>
+            
+            <!-- NSG Processing -->
+            <div class="concept-section" id="nsg">
+                <h2>Network Security Group (NSG) Processing Logic</h2>
+                
+                <div class="key-points">
+                    <ul>
+                        <li>Rules evaluated by <strong>priority number</strong> (100-4096)</li>
+                        <li><strong>Lower number = Higher priority</strong></li>
+                        <li><strong>First match wins</strong> - processing stops immediately</li>
+                        <li>Default rules at priority 65000+ (cannot modify)</li>
+                        <li>Separate evaluation for inbound and outbound</li>
+                    </ul>
+                </div>
+                
+                <div class="example">
+                    <h4>💻 NSG Rule Example</h4>
+                    <pre><code># Create NSG with multiple rules
+# Rule 1: Allow RDP from specific IP (Priority 100)
+az network nsg rule create \
+  --resource-group TestRG \
+  --nsg-name VM-NSG \
+  --name AllowRDPFromOffice \
+  --priority 100 \
+  --source-address-prefixes "203.0.113.0/24" \
+  --destination-port-ranges 3389 \
+  --access Allow \
+  --protocol Tcp \
+  --direction Inbound
+
+# Rule 2: Deny all RDP (Priority 200)
+az network nsg rule create \
+  --resource-group TestRG \
+  --nsg-name VM-NSG \
+  --name DenyAllRDP \
+  --priority 200 \
+  --source-address-prefixes "*" \
+  --destination-port-ranges 3389 \
+  --access Deny \
+  --protocol Tcp \
+  --direction Inbound
+
+# Rule 3: Allow HTTPS from anywhere (Priority 300)
+az network nsg rule create \
+  --resource-group TestRG \
+  --nsg-name VM-NSG \
+  --name AllowHTTPS \
+  --priority 300 \
+  --source-address-prefixes "*" \
+  --destination-port-ranges 443 \
+  --access Allow \
+  --protocol Tcp \
+  --direction Inbound</code></pre>
+                </div>
+                
+                <div class="scenario">
+                    <h4>📋 Exam Scenario</h4>
+                    <p><strong>Setup:</strong> A VM has NSG at both NIC and Subnet level</p>
+                    <ul>
+                        <li>Subnet NSG: Allow port 80 from Internet (Priority 100)</li>
+                        <li>NIC NSG: Deny port 80 from Internet (Priority 100)</li>
+                    </ul>
+                    <p><strong>Question:</strong> Can internet users access port 80?</p>
+                    <p><strong>Answer:</strong> NO - Traffic must pass through BOTH NSGs. Subnet NSG is evaluated first (allows), then NIC NSG (denies).</p>
+                </div>
+                
+                <div class="tip">
+                    <strong>Exam Tip:</strong> Use "Effective Security Rules" in Azure Portal to see the combined effect of multiple NSGs.
+                </div>
+            </div>
+            
+            <!-- Resource Movement -->
+            <div class="concept-section" id="resources">
+                <h2>Resource Movement Rules</h2>
+                
+                <table>
+                    <tr>
+                        <th>Movement Type</th>
+                        <th>Allowed?</th>
+                        <th>Requirements</th>
+                        <th>Example Command</th>
+                    </tr>
+                    <tr>
+                        <td>Between Resource Groups</td>
+                        <td>✅ Yes</td>
+                        <td>Same subscription</td>
+                        <td><code>az resource move --destination-group NewRG</code></td>
+                    </tr>
+                    <tr>
+                        <td>Between Subscriptions</td>
+                        <td>✅ Yes</td>
+                        <td>Same Azure AD tenant</td>
+                        <td><code>az resource move --destination-subscription-id</code></td>
+                    </tr>
+                    <tr>
+                        <td>Between Regions</td>
+                        <td>❌ No</td>
+                        <td>Must recreate</td>
+                        <td>Use Azure Resource Mover or recreate</td>
+                    </tr>
+                    <tr>
+                        <td>Between Tenants</td>
+                        <td>❌ No</td>
+                        <td>Not supported</td>
+                        <td>Export/Import templates</td>
+                    </tr>
+                </table>
+                
+                <div class="example">
+                    <h4>💻 Moving Resources Example</h4>
+                    <pre><code># Step 1: Validate the move
+az resource invoke-action \
+  --action validateMoveResources \
+  --ids "/subscriptions/{sub-id}/resourceGroups/SourceRG" \
+  --request-body '{"targetResourceGroup":"/subscriptions/{sub-id}/resourceGroups/TargetRG","resources":["{resource-id}"]}'
+
+# Step 2: Move the resources
+$webapp = Get-AzResource -ResourceGroupName OldRG -ResourceName myWebApp
+$plan = Get-AzResource -ResourceGroupName OldRG -ResourceName myAppServicePlan
+
+Move-AzResource -DestinationResourceGroupName NewRG `
+  -ResourceId $webapp.ResourceId, $plan.ResourceId
+
+# Step 3: Verify the move
+Get-AzResource -ResourceGroupName NewRG</code></pre>
+                </div>
+                
+                <div class="warning">
+                    <strong>Cannot Move:</strong> Recovery Services Vaults with backups, Azure AD Domain Services, Classic resources, some App Service resources with SSL certificates
+                </div>
+            </div>
+            
+            <!-- Backup and Recovery -->
+            <div class="concept-section" id="backup">
+                <h2>Backup & Recovery Essentials</h2>
+                
+                <h3>VM Backup Features</h3>
+                <div class="key-points">
+                    <ul>
+                        <li><strong>Frequency:</strong> Once daily (additional on-demand allowed)</li>
+                        <li><strong>Retention:</strong> Daily (7-9999 days), Weekly (1-5163 weeks), Monthly (1-1188 months), Yearly (1-99 years)</li>
+                        <li><strong>Instant Restore:</strong> Last 5 days of recovery points</li>
+                        <li><strong>Application Consistent:</strong> VSS for Windows, Scripts for Linux</li>
+                    </ul>
+                </div>
+                
+                <div class="example">
+                    <h4>💻 Configure VM Backup</h4>
+                    <pre><code># Create Recovery Services Vault
+az backup vault create \
+  --resource-group BackupRG \
+  --name CompanyBackupVault \
+  --location eastus
+
+# Enable backup for VM
+az backup protection enable-for-vm \
+  --resource-group BackupRG \
+  --vault-name CompanyBackupVault \
+  --vm ProductionVM01 \
+  --policy-name DefaultPolicy
+
+# Trigger on-demand backup
+az backup protection backup-now \
+  --resource-group BackupRG \
+  --vault-name CompanyBackupVault \
+  --container-name ProductionVM01 \
+  --item-name ProductionVM01 \
+  --retain-until 20-12-2025
+
+# Restore VM to new location
+az backup restore restore-disks \
+  --resource-group BackupRG \
+  --vault-name CompanyBackupVault \
+  --container-name ProductionVM01 \
+  --item-name ProductionVM01 \
+  --rp-name {recovery-point} \
+  --storage-account mystorageaccount \
+  --target-resource-group RestoredRG</code></pre>
+                </div>
+                
+                <div class="scenario">
+                    <h4>📋 Exam Scenario</h4>
+                    <p><strong>Question:</strong> You need to backup SQL Server databases running in an Azure VM with transaction log backups every 15 minutes. What should you use?</p>
+                    <p><strong>Answer:</strong> Azure Backup for SQL Server in Azure VMs (not VM backup)</p>
+                    <pre><code># Register SQL VM with backup
+az backup protectable-item initialize \
+  --resource-group BackupRG \
+  --vault-name CompanyBackupVault \
+  --container-name VMAppContainer;Compute;RG;SQLVM \
+  --workload-type SQLDataBase</code></pre>
+                </div>
+            </div>
+            
+            <!-- VM Availability -->
+            <div class="concept-section" id="availability">
+                <h2>VM Availability Options</h2>
+                
+                <table>
+                    <tr>
+                        <th>Option</th>
+                        <th>SLA</th>
+                        <th>Protection Against</th>
+                        <th>Use Case</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Single VM + Premium SSD</strong></td>
+                        <td>99.9%</td>
+                        <td>Disk failure</td>
+                        <td>Non-critical workloads</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Availability Set</strong></td>
+                        <td>99.95%</td>
+                        <td>Rack/Hardware failure</td>
+                        <td>Traditional HA</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Availability Zones</strong></td>
+                        <td>99.99%</td>
+                        <td>Datacenter failure</td>
+                        <td>Mission critical</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scale Sets</strong></td>
+                        <td>99.95%+</td>
+                        <td>Auto-scaling</td>
+                        <td>Variable load</td>
+                    </tr>
+                </table>
+                
+                <div class="example">
+                    <h4>💻 Create VMs in Availability Set</h4>
+                    <pre><code># Create Availability Set
+az vm availability-set create \
+  --resource-group ProductionRG \
+  --name WebAvailSet \
+  --platform-fault-domain-count 2 \
+  --platform-update-domain-count 5
+
+# Create VMs in Availability Set
+for i in 1 2 3; do
+  az vm create \
+    --resource-group ProductionRG \
+    --name WebVM$i \
+    --image UbuntuLTS \
+    --size Standard_D2s_v3 \
+    --availability-set WebAvailSet \
+    --vnet-name ProductionVNet \
+    --subnet WebSubnet \
+    --public-ip-address "" \
+    --nsg WebNSG
+done</code></pre>
+                </div>
+                
+                <div class="example">
+                    <h4>💻 Deploy to Availability Zones</h4>
+                    <pre><code># Create VMs across zones
+for zone in 1 2 3; do
+  az vm create \
+    --resource-group AZRG \
+    --name AZVM$zone \
+    --image Win2019Datacenter \
+    --size Standard_D4s_v3 \
+    --zone $zone \
+    --vnet-name AZVNet \
+    --subnet AppSubnet \
+    --public-ip-address AZVM${zone}PIP \
+    --public-ip-address-allocation static
+done
+
+# Create zone-redundant Load Balancer
+az network lb create \
+  --resource-group AZRG \
+  --name AZLoadBalancer \
+  --sku Standard \
+  --public-ip-address AZLBPIP \
+  --frontend-ip-name myFrontEnd \
+  --backend-pool-name myBackEndPool</code></pre>
+                </div>
+                
+                <div class="warning">
+                    <strong>Important:</strong> You cannot add existing VMs to an Availability Set. The VM must be created with the Availability Set or Zone assignment.
+                </div>
+            </div>
+            
+            <!-- Networking Hierarchy -->
+            <div class="concept-section" id="networking">
+                <h2>Azure Networking Hierarchy</h2>
+                
+                <div class="example">
+                    <h4>💻 Complete Network Setup</h4>
+                    <pre><code># 1. Create Virtual Network with subnets
+az network vnet create \
+  --resource-group NetworkRG \
+  --name CorporateVNet \
+  --address-prefix 10.0.0.0/16 \
+  --subnet-name WebTier \
+  --subnet-prefix 10.0.1.0/24
+
+# 2. Add additional subnets
+az network vnet subnet create \
+  --resource-group NetworkRG \
+  --vnet-name CorporateVNet \
+  --name AppTier \
+  --address-prefix 10.0.2.0/24
+
+az network vnet subnet create \
+  --resource-group NetworkRG \
+  --vnet-name CorporateVNet \
+  --name DataTier \
+  --address-prefix 10.0.3.0/24
+
+# 3. Create and associate NSGs
+az network nsg create \
+  --resource-group NetworkRG \
+  --name WebTier-NSG
+
+az network vnet subnet update \
+  --resource-group NetworkRG \
+  --vnet-name CorporateVNet \
+  --name WebTier \
+  --network-security-group WebTier-NSG
+
+# 4. Create custom route table
+az network route-table create \
+  --resource-group NetworkRG \
+  --name DataTierRouteTable
+
+# 5. Add route to firewall
+az network route-table route create \
+  --resource-group NetworkRG \
+  --route-table-name DataTierRouteTable \
+  --name ToFirewall \
+  --address-prefix 0.0.0.0/0 \
+  --next-hop-type VirtualAppliance \
+  --next-hop-ip-address 10.0.254.4
+
+# 6. Create Service Endpoint for Storage
+az network vnet subnet update \
+  --resource-group NetworkRG \
+  --vnet-name CorporateVNet \
+  --name DataTier \
+  --service-endpoints Microsoft.Storage
+
+# 7. Create Private Endpoint for SQL
+az network private-endpoint create \
+  --resource-group NetworkRG \
+  --name SQLPrivateEndpoint \
+  --vnet-name CorporateVNet \
+  --subnet DataTier \
+  --private-connection-resource-id {sql-server-id} \
+  --group-id sqlServer \
+  --connection-name SQLConnection</code></pre>
+                </div>
+                
+                <div class="scenario">
+                    <h4>📋 Exam Scenario</h4>
+                    <p><strong>Question:</strong> You need VMs in Azure to access Azure Storage without going through public internet. Service should be accessible only from your VNet. What should you implement?</p>
+                    <p><strong>Answer:</strong> Private Endpoint (not Service Endpoint - that still uses public IPs)</p>
+                </div>
+            </div>
+            
+            <!-- Identity and RBAC -->
+            <div class="concept-section" id="identity">
+                <h2>Identity & Access Management (RBAC)</h2>
+                
+                <h3>RBAC Hierarchy</h3>
+                <pre style="background: #f8f9fa; color: #333;">
+Management Groups
+    └── Subscriptions
+            └── Resource Groups
+                    └── Resources
+                    
+Inheritance: Permissions flow DOWN (cannot be blocked)</pre>
+                
+                <div class="example">
+                    <h4>💻 RBAC Assignment Examples</h4>
+                    <pre><code># Assign built-in role at subscription level
+az role assignment create \
+  --assignee user@company.com \
+  --role "Contributor" \
+  --scope /subscriptions/{subscription-id}
+
+# Create custom role
+az role definition create --role-definition '{
+  "Name": "VM Restart Operator",
+  "Description": "Can restart VMs only",
+  "Actions": [
+    "Microsoft.Compute/virtualMachines/read",
+    "Microsoft.Compute/virtualMachines/restart/action",
+    "Microsoft.Compute/virtualMachines/start/action"
+  ],
+  "NotActions": [],
+  "AssignableScopes": [
+    "/subscriptions/{subscription-id}"
+  ]
+}'
+
+# Assign custom role to service principal
+az ad sp create-for-rbac \
+  --name VMRestartApp \
+  --role "VM Restart Operator" \
+  --scopes /subscriptions/{subscription-id}/resourceGroups/ProductionRG</code></pre>
+                </div>
+                
+                <table>
+                    <tr>
+                        <th>Built-in Role</th>
+                        <th>Key Permissions</th>
+                        <th>Cannot Do</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Owner</strong></td>
+                        <td>Everything</td>
+                        <td>Nothing (full access)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Contributor</strong></td>
+                        <td>Create/manage all resources</td>
+                        <td>Grant access to others</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reader</strong></td>
+                        <td>View all resources</td>
+                        <td>Make any changes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User Access Administrator</strong></td>
+                        <td>Manage user access</td>
+                        <td>Manage resources</td>
+                    </tr>
+                </table>
+                
+                <div class="scenario">
+                    <h4>📋 Exam Scenario</h4>
+                    <p><strong>Question:</strong> A developer needs to create and manage VMs but shouldn't be able to grant access to other users. Which role?</p>
+                    <p><strong>Answer:</strong> Contributor (can manage resources but not access)</p>
+                </div>
+            </div>
+            
+            <!-- Cost Optimization -->
+            <div class="concept-section" id="cost">
+                <h2>Cost Optimization Strategies</h2>
+                
+                <table>
+                    <tr>
+                        <th>Strategy</th>
+                        <th>Savings</th>
+                        <th>Best For</th>
+                        <th>Implementation</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Reserved Instances</strong></td>
+                        <td>Up to 72%</td>
+                        <td>Predictable workloads</td>
+                        <td>1 or 3 year commitment</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Spot VMs</strong></td>
+                        <td>Up to 90%</td>
+                        <td>Interruptible workloads</td>
+                        <td>Can be evicted anytime</td>
+                    </tr>
+                    <tr>
+                        <td><strong>B-Series VMs</strong></td>
+                        <td>15-55%</td>
+                        <td>Variable workloads</td>
+                        <td>CPU credits system</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hybrid Benefit</strong></td>
+                        <td>Up to 49%</td>
+                        <td>Existing licenses</td>
+                        <td>Windows/SQL licenses</td>
+                    </tr>
+                </table>
+                
+                <div class="example">
+                    <h4>💻 Implement Cost Savings</h4>
+                    <pre><code># 1. Create Spot VM
+az vm create \
+  --resource-group CostSavingsRG \
+  --name SpotVM01 \
+  --image UbuntuLTS \
+  --size Standard_D2s_v3 \
+  --priority Spot \
+  --eviction-policy Deallocate \
+  --max-price 0.05
+
+# 2. Configure auto-shutdown
+az vm auto-shutdown \
+  --resource-group CostSavingsRG \
+  --name ProductionVM \
+  --time 1900 \
+  --timezone "Eastern Standard Time"
+
+# 3. Apply Hybrid Benefit
+az vm update \
+  --resource-group CostSavingsRG \
+  --name WindowsVM01 \
+  --license-type Windows_Server
+
+# 4. Set up budget alert
+az consumption budget create \
+  --budget-name MonthlyBudget \
+  --amount 1000 \
+  --time-grain Monthly \
+  --start-date 2025-01-01 \
+  --end-date 2025-12-31 \
+  --category Cost \
+  --notifications '{
+    "Actual_GreaterThan_80_Percent": {
+      "enabled": true,
+      "operator": "GreaterThan",
+      "threshold": 80,
+      "contactEmails": ["admin@company.com"]
+    }
+  }'</code></pre>
+                </div>
+            </div>
+            
+            <!-- Load Balancing -->
+            <div class="concept-section" id="loadbalancing">
+                <h2>Load Balancing Options</h2>
+                
+                <table>
+                    <tr>
+                        <th>Service</th>
+                        <th>Layer</th>
+                        <th>Scope</th>
+                        <th>Features</th>
+                        <th>Use Case</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Load Balancer</strong></td>
+                        <td>Layer 4</td>
+                        <td>Regional</td>
+                        <td>High performance, Low latency</td>
+                        <td>Any TCP/UDP</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Application Gateway</strong></td>
+                        <td>Layer 7</td>
+                        <td>Regional</td>
+                        <td>SSL, WAF, URL routing</td>
+                        <td>Web apps</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Traffic Manager</strong></td>
+                        <td>DNS</td>
+                        <td>Global</td>
+                        <td>Geographic routing</td>
+                        <td>Multi-region</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Front Door</strong></td>
+                        <td>Layer 7</td>
+                        <td>Global</td>
+                        <td>CDN, WAF, SSL</td>
+                        <td>Global web apps</td>
+                    </tr>
+                </table>
+                
+                <div class="example">
+                    <h4>💻 Configure Application Gateway with WAF</h4>
+                    <pre><code># Create Application Gateway with WAF
+az network application-gateway create \
+  --resource-group WAFG \
+  --name AppGW01 \
+  --location eastus \
+  --sku WAF_v2 \
+  --capacity 2 \
+  --vnet-name AppVNet \
+  --subnet AppGatewaySubnet \
+  --http-settings-port 80 \
+  --http-settings-protocol Http \
+  --frontend-port 443 \
+  --routing-rule-type PathBasedRouting \
+  --servers 10.0.1.4 10.0.1.5
+
+# Configure WAF policy
+az network application-gateway waf-config set \
+  --resource-group WAFRG \
+  --gateway-name AppGW01 \
+  --enabled true \
+  --firewall-mode Prevention \
+  --rule-set-type OWASP \
+  --rule-set-version 3.1
+
+# Add URL path map
+az network application-gateway url-path-map create \
+  --resource-group WAFRG \
+  --gateway-name AppGW01 \
+  --name ImagePathMap \
+  --paths /images/* \
+  --address-pool ImagesBackendPool \
+  --default-address-pool DefaultBackendPool \
+  --http-settings BackEndHttpSettings</code></pre>
+                </div>
+                
+                <div class="scenario">
+                    <h4>📋 Exam Scenario</h4>
+                    <p><strong>Question:</strong> You need load balancing for a web app with SSL termination and protection against SQL injection. What should you use?</p>
+                    <p><strong>Answer:</strong> Application Gateway with WAF_v2 SKU</p>
+                </div>
+            </div>
+            
+            <!-- Monitoring -->
+            <div class="concept-section" id="monitoring">
+                <h2>Azure Monitor & Alerts</h2>
+                
+                <div class="key-points">
+                    <ul>
+                        <li><strong>Metrics:</strong> Real-time, 93 days retention, 1-minute granularity</li>
+                        <li><strong>Logs:</strong> KQL queries, requires Log Analytics Workspace</li>
+                        <li><strong>Action Groups:</strong> Reusable notification configurations</li>
+                        <li><strong>Alert States:</strong> New → Acknowledged → Closed</li>
+                    </ul>
+                </div>
+                
+                <div class="example">
+                    <h4>💻 Complete Monitoring Setup</h4>
+                    <pre><code># 1. Create Log Analytics Workspace
+az monitor log-analytics workspace create \
+  --resource-group MonitorRG \
+  --workspace-name CompanyLogAnalytics \
+  --location eastus \
+  --retention-time 90
+
+# 2. Enable VM Insights
+az vm extension set \
+  --resource-group MonitorRG \
+  --vm-name ProductionVM \
+  --name MicrosoftMonitoringAgent \
+  --publisher Microsoft.EnterpriseCloud.Monitoring \
+  --settings '{"workspaceId":"workspace-id"}' \
+  --protected-settings '{"workspaceKey":"workspace-key"}'
+
+# 3. Create Action Group
+az monitor action-group create \
+  --resource-group MonitorRG \
+  --name CriticalAlerts \
+  --short-name Critical \
+  --email SecurityTeam admin@company.com \
+  --sms 1 +1234567890 \
+  --webhook https://alerting.company.com/webhook
+
+# 4. Create Metric Alert
+az monitor metrics alert create \
+  --resource-group MonitorRG \
+  --name HighCPUAlert \
+  --scopes {vm-resource-id} \
+  --condition "avg Percentage CPU > 80" \
+  --window-size 5m \
+  --evaluation-frequency 1m \
+  --action CriticalAlerts \
+  --severity 2
+
+# 5. Create Log Alert (KQL)
+az monitor log-alert create \
+  --resource-group MonitorRG \
+  --name SecurityEventAlert \
+  --workspace CompanyLogAnalytics \
+  --condition 'SecurityEvent | where EventID == 4625 | summarize count() by Computer | where count_ > 5' \
+  --window-size 15m \
+  --evaluation-frequency 5m \
+  --action CriticalAlerts</code></pre>
+                </div>
+                
+                <div class="example">
+                    <h4>💻 Common KQL Queries</h4>
+                    <pre><code># Failed login attempts
+SecurityEvent
+| where EventID == 4625
+| summarize FailedLogins = count() by Account, Computer
+| where FailedLogins > 10
+| order by FailedLogins desc
+
+# VM performance issues
+Perf
+| where ObjectName == "Processor" and CounterName == "% Processor Time"
+| summarize avg(CounterValue) by Computer, bin(TimeGenerated, 5m)
+| where avg_CounterValue > 80
+
+# Storage account operations
+StorageBlobLogs
+| where OperationName == "DeleteBlob"
+| project TimeGenerated, AccountName, CallerIpAddress, Uri
+| order by TimeGenerated desc</code></pre>
+                </div>
+                
+                <div class="tip">
+                    <strong>Exam Tip:</strong> Remember that diagnostic settings can send data to three destinations: Storage Account (archival), Event Hub (streaming), and Log Analytics (analysis).
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="text-align: center; padding: 40px 0; color: #666; border-top: 2px solid #e1e5ea; margin-top: 50px;">
+                <p><strong>Quick Reminder:</strong> Practice these scenarios hands-on in Azure Portal!</p>
+                <p>Good luck with your AZ-104 exam! 🎯</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
