@@ -305,17 +305,6 @@ After basic setup, explore these advanced SCCM capabilities:
 - Monitor database growth
 - Implement proper backup strategy
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
-
-### How to Contribute
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
 
 ## 🚀 Next Steps
 
